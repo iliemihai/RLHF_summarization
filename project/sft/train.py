@@ -4,7 +4,7 @@ from torch.utils.data.dataset import Dataset
 from torch.utils.data import DataLoader
 from torch.nn import MSELoss
 import pytorch_lightning as pl
-from transformers import AutoTokenizer, AutoModel, AutoConfig, Trainer, TrainingArguments
+from transformers import AutoTokenizer, T5ForConditionalGeneration, AutoConfig, Trainer, TrainingArguments
 from pytorch_lightning.callbacks import EarlyStopping
 from scipy.stats.stats import pearsonr
 from scipy.stats import spearmanr
@@ -13,6 +13,7 @@ from sft_dataset import SFTDataset, my_collate
 from pytorch_lightning.callbacks import ModelCheckpoint
 
 import os
+from argparse import ArgumentParser
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
@@ -22,7 +23,7 @@ class TransformerModel (pl.LightningModule):
         print("Loading AutoModel [{}]...".format(model_name))
         self.model_name = model_name
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModel.from_pretrained(model_name)
+        self.model = T5ForConditionalGeneration.from_pretrained(model_name)
 
         self.lr = lr
         self.model_max_length = model_max_length
@@ -80,7 +81,7 @@ class TransformerModel (pl.LightningModule):
 
         return {"loss": loss}
 
-    def training_epoch_end(self, outputs):
+    def on_train_epoch_end(self):
         mean_train_loss = sum(self.train_loss)/len(self.train_loss)
         self.log("train/avg_loss", mean_train_loss, prog_bar=True)
 
@@ -98,7 +99,7 @@ class TransformerModel (pl.LightningModule):
         return {"loss": loss}
 
 
-    def validation_epoch_end(self, outputs):
+    def on_validation_epoch_end(self):
         mean_valid_loss = sum(self.valid_loss)/len(self.valid_loss)
         self.log("valid/avg_loss", mean_valid_loss, prog_bar=True)
 
@@ -116,18 +117,18 @@ def cli_main():
 
     # args
     parser = ArgumentParser()
-    parser.add_argument("--batch_size", default=16, type=int)
+    parser.add_argument("--batch_size", default=2, type=int)
     parser.add_argument('--gpus', type=int, default=1)
     parser.add_argument('--accumulate_grad_batches', type=int, default=16)
-    parser = pl.Trainer.add_argparse_args(parser)
-    parser = LitClassifier.add_model_specific_args(parser)
+    args = parser.parse_args()
 
+    tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-base")
     # data
     sft_train = SFTDataset(path="../../data/sft.json", tokenizer=tokenizer, split="train")
     sft_val = SFTDataset(path="../../data/sft.json", tokenizer=tokenizer, split="val")
 
-    train_loader = DataLoader(sft_train, batch_size=args.batch_size, num_workers=1, shuffle=True, collate_fn=my_collate, pin_memory=True)
-    val_loader = DataLoader(sft_train, batch_size=args.batch_size, num_workers=1, shuffle=False, collate_fn=my_collate, pin_memory=True)
+    train_loader = DataLoader(sft_train, batch_size=args.batch_size, num_workers=8, shuffle=True, collate_fn=my_collate, pin_memory=True)
+    val_loader = DataLoader(sft_train, batch_size=args.batch_size, num_workers=8, shuffle=False, collate_fn=my_collate, pin_memory=True)
 
 
     model = TransformerModel()
@@ -140,7 +141,7 @@ def cli_main():
         )
         
     trainer = pl.Trainer(
-            gpus=args.gpus,
+            devices=args.gpus,
             max_epochs=10,
             callbacks=[early_stop],
             #limit_train_batches=5,

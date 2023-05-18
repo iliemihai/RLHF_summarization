@@ -117,6 +117,8 @@ def cli_main():
     # args
     parser = ArgumentParser()
     parser.add_argument("--batch_size", default=16, type=int)
+    parser.add_argument('--gpus', type=int, default=1)
+    parser.add_argument('--accumulate_grad_batches', type=int, default=16)
     parser = pl.Trainer.add_argparse_args(parser)
     parser = LitClassifier.add_model_specific_args(parser)
 
@@ -130,9 +132,26 @@ def cli_main():
 
     model = TransformerModel()
 
-    trainer = pl.Trainer.from_argparse_args(args)
-    trainer.fit(model, train_loader, val_loader)
+    early_stop = EarlyStopping(
+            monitor='valid/loss',
+            patience=3,
+            verbose=True,
+            mode='max'
+        )
+        
+    trainer = pl.Trainer(
+            gpus=args.gpus,
+            max_epochs=10,
+            callbacks=[early_stop],
+            #limit_train_batches=5,
+            #limit_val_batches=2,
+            accumulate_grad_batches=args.accumulate_grad_batches,
+            gradient_clip_val=1.0,
+            enable_checkpointing=False
+        )
 
+    trainer.fit(model, train_loader, val_loader)
+    trainer.save_checkpoint("./model/")
 
 if __name__ == "__main__":
     cli_main()

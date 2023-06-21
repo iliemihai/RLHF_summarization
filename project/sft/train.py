@@ -134,7 +134,7 @@ def cli_main():
     model = TransformerModel()
 
     early_stop = EarlyStopping(
-            monitor='valid/loss',
+            monitor='valid_loss',
             patience=3,
             verbose=True,
             mode='max'
@@ -152,7 +152,7 @@ def cli_main():
         )
 
     trainer.fit(model, train_loader, val_loader)
-    trainer.save_checkpoint("./model/")
+    trainer.save_checkpoint("./model/model.ckp")
 
 if __name__ == "__main__":
     cli_main()

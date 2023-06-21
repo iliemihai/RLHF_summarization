@@ -1,3 +1,5 @@
+import sys
+sys.path.append("..")
 import logging, os, sys, json, torch
 import torch.nn as nn
 from torch.utils.data.dataset import Dataset
@@ -14,11 +16,12 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 import os
 from argparse import ArgumentParser
+from utils.params import MODEL_PATH
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
 class TransformerModel (pl.LightningModule):
-    def __init__(self, model_name="google/flan-t5-base", lr=2e-05, model_max_length=512):
+    def __init__(self, model_name=MODEL_PATH, lr=2e-05, model_max_length=512):
         super().__init__()
         print("Loading AutoModel [{}]...".format(model_name))
         self.model_name = model_name
@@ -122,7 +125,7 @@ def cli_main():
     parser.add_argument('--accumulate_grad_batches', type=int, default=16)
     args = parser.parse_args()
 
-    tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-base")
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     # data
     sft_train = SFTDataset(path="../../data/sft.json", tokenizer=tokenizer, split="train")
     sft_val = SFTDataset(path="../../data/sft.json", tokenizer=tokenizer, split="val")

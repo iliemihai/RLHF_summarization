@@ -1,11 +1,13 @@
+import sys
+sys.path.append("..")
 import json 
 from tqdm import tqdm 
 from transformers import T5Tokenizer, T5ForConditionalGeneration 
- 
+from utils.params import MODEL_PATH
  
 d = json.load(open("../../data/rl.json")) 
  
-model_name = "../sft/hf_model/" # "google/flan-t5-xl" 
+model_name = "../sft/hf_model/"  
 tokenizer = T5Tokenizer.from_pretrained(model_name) 
 model = T5ForConditionalGeneration.from_pretrained(model_name).to("cuda") 
 h = open("saved_summaries_train.json", "w") 

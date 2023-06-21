@@ -1,3 +1,5 @@
+import sys
+sys.path.append("..")
 import logging, os, sys, json, torch
 import torch.nn as nn
 from torch.utils.data.dataset import Dataset
@@ -15,6 +17,7 @@ import os
 from tqdm import tqdm
 from model import T5RewardModel
 from argparse import ArgumentParser
+from utils.params import MODEL_PATH
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -98,7 +101,7 @@ def compute_metrics(eval_preds):
 
 
 class RewardModel (pl.LightningModule):
-    def __init__(self, model_path="../sft/model/model.ckp", tokenizer_name="google/flan-t5-base", lr=2e-05, model_max_length=512, inference=True):
+    def __init__(self, model_path="../sft/model/model.ckp", tokenizer_name=MODEL_PATH, lr=2e-05, model_max_length=512, inference=True):
         super().__init__()
         print("Loading AutoModel [{}]...".format(model_path))
         self.model_path = model_path
@@ -193,7 +196,7 @@ def cli_main():
     parser.add_argument('--accumulate_grad_batches', type=int, default=16)
     args = parser.parse_args()
 
-    tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-base")
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     # data
     max_length = 510
     train_pairs = create_comparison_dataset("train")

@@ -12,6 +12,7 @@ from rw.train import RewardModel
 from sft.train import TransformerModel
 from tqdm import tqdm
 from transformers import AutoTokenizer
+from utils.params import MODEL_PATH
 
 import trlx
 from trlx.data.default_configs import (
@@ -33,7 +34,7 @@ SFT_MODEL_PATH = "../sft/model/model.ckp"
 HF_SFT_MODEL_PATH="../sft/hf_model/"
 
 print("Converting PL model to HF model...")
-tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-base")
+tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
 tokenizer.save_pretrained(HF_SFT_MODEL_PATH)
 sft_model = TransformerModel.load_from_checkpoint(SFT_MODEL_PATH)
 sft_model.model.save_pretrained(HF_SFT_MODEL_PATH)
@@ -44,17 +45,17 @@ default_config = TRLConfig(
     train=TrainConfig(
         seq_length=510,
         epochs=100,
-        total_steps=5000,
-        batch_size=8,
-        checkpoint_interval=10000,
-        eval_interval=1000,
+        total_steps=10000,
+        batch_size=1,
+        checkpoint_interval=5000,
+        eval_interval=5000,
         pipeline="PromptPipeline",
         trainer="AccelerateILQLTrainer",
         checkpoint_dir="ilql_summarize_t5"
     ),
     model=ModelConfig(
         model_path=HF_SFT_MODEL_PATH,
-        num_layers_unfrozen=4,
+        num_layers_unfrozen=-1,
         model_arch_type="seq2seq"
     ),
     tokenizer=TokenizerConfig(

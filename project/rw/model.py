@@ -51,7 +51,6 @@ class T5RewardModel(pl.LightningModule):
         rejected = input_ids[bs:]
         chosen_rewards = rewards[:bs]
         rejected_rewards = rewards[bs:]
-        #print("DECI ESTE: ", rewards, "SI", input_ids, "SI", bs, chosen_rewards, "SI", rejected_rewards)
 
         loss = 0
         for i in range(bs):
@@ -75,7 +74,6 @@ class T5RewardModel(pl.LightningModule):
             #index the correct rewards
             c_truncated_reward = chosen_rewards[i][divergence_ind:end_ind]
             r_truncated_reward = rejected_rewards[i][divergence_ind:end_ind]
-            #print("AVEM ", r_truncated_reward, rejected_rewards, i, divergence_ind, end_ind)
 
             #append the last rewards to  the list of end scores
             chosen_end_scores.append(c_truncated_reward[-1])
@@ -86,7 +84,6 @@ class T5RewardModel(pl.LightningModule):
         loss = loss / bs
 
         if not self.inference:
-            #print("AICI ESTE: ", rejected_end_scores)
             rejected_end_scores = torch.stack(rejected_end_scores)
 
         if self.inference:

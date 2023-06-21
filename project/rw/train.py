@@ -24,9 +24,9 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 def create_comparison_dataset(split="train"):
     if "train" in split:
-        dataset = json.load(open("../../data/saved_summaries_train.json" , "r"))
+        dataset = json.load(open("../../data/rw.json" , "r"))["train"]
     else:
-        dataset = json.load(open("../../data/saved_summaries_valid.json" , "r"))
+        dataset = json.load(open("../../data/rw.json" , "r"))["val"]
     pairs = []
     for sample in tqdm(dataset["texts"]):
         pair = {}

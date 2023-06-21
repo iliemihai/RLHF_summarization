@@ -127,8 +127,10 @@ def cli_main():
 
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     # data
-    sft_train = SFTDataset(path="../../data/sft.json", tokenizer=tokenizer, split="train")
-    sft_val = SFTDataset(path="../../data/sft.json", tokenizer=tokenizer, split="val")
+    path = "../../data/sft.json"
+    absolute_path = os.path.abspath(path)
+    sft_train = SFTDataset(path=absolute_path, tokenizer=tokenizer, split="train")
+    sft_val = SFTDataset(path=absolute_path, tokenizer=tokenizer, split="val")
 
     train_loader = DataLoader(sft_train, batch_size=args.batch_size, num_workers=8, shuffle=True, collate_fn=my_collate, pin_memory=True)
     val_loader = DataLoader(sft_train, batch_size=args.batch_size, num_workers=8, shuffle=False, collate_fn=my_collate, pin_memory=True)

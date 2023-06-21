@@ -4,9 +4,12 @@ import numpy as np
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 
+path = "./data/data.json"
+absolute_path = os.path.abspath(path)
+f = open(absolute_path, "r")
 
-f = open("../data/data.json", "r")
-
+path = "./data/sft.json"
+absolute_path = os.path.abspath(path)
 lines = json.load(f, strict=False)
 
 filtered_data = []
@@ -32,7 +35,7 @@ data_sft = np.array(data_sft)
 data_train_sft, data_val_sft  = train_test_split(data_sft, test_size=0.1)
 d = {"train": data_train_sft, "val": data_val_sft}
 j = json.dumps({k: v.tolist() for k, v in d.items()}, indent=4)
-with open("../data/sft.json", "w") as outfile:
+with open(absolute_path, "w") as outfile:
     outfile.write(j)
 
 print("Split RW...")
@@ -43,7 +46,7 @@ data_rw = np.array(data_rw)
 data_train_rw, data_val_rw  = train_test_split(data_rw, test_size=0.1)
 d = {"train": data_train_rw, "val": data_val_rw}
 j = json.dumps({k: v.tolist() for k, v in d.items()}, indent=4)
-with open("../data/rw.json", "w") as outfile:
+with open(absolute_path, "w") as outfile:
     outfile.write(j)
 
 print("Split RL...")
@@ -54,6 +57,6 @@ data_rl = np.array(data_rl)
 data_train_rl, data_val_rl  = train_test_split(data_rl, test_size=0.1)
 d = {"train": data_train_rl, "val": data_val_rl}
 j = json.dumps({k: v.tolist() for k, v in d.items()}, indent=4)
-with open("../data/rl.json", "w") as outfile:
+with open(absolute_path, "w") as outfile:
     outfile.write(j)
 

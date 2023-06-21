@@ -16,19 +16,19 @@ class SFTDataset(Dataset):
         self.max_length = max_length
 
         if "train" in split:
-            for sample_x, sample_y in zip(self.dataset["x_train"], self.dataset["y_train"]):
-                self.input_train.append(sample_x)
-                self.output_train.append(sample_y)
+            for sample in self.dataset["train"]:
+                self.input_train.append(sample["prompt"])
+                self.output_train.append(sample["chosen"])
         elif "val" in split:
-            for sample_x, sample_y in zip(self.dataset["x_val"], self.dataset["y_val"]):
-                self.input_val.append(sample_x)
-                self.output_val.append(sample_y)
+            for sample in self.dataset["val"]:
+                self.input_val.append(sample["prompt"])
+                self.output_val.append(sample["chosen"])
 
     def __len__(self):
         if "train" in self.split:
-            return len(self.dataset["x_train"])
+            return len(self.dataset["train"])
         elif "val" in self.split:
-            return len(self.dataset["x_val"])
+            return len(self.dataset["val"])
 
     def  __getitem__(self, idx):
         if "train" in self.split:

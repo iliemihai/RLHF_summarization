@@ -28,7 +28,7 @@ def create_comparison_dataset(split="train"):
     else:
         dataset = json.load(open("../../data/rw.json" , "r"))["val"]
     pairs = []
-    for sample in tqdm(dataset["texts"]):
+    for sample in tqdm(dataset):
         pair = {}
         prompt = "Summary:"
         chosen_summary = sample["accepted"]

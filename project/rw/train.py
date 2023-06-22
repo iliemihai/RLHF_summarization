@@ -31,7 +31,7 @@ def create_comparison_dataset(split="train"):
     for sample in tqdm(dataset):
         pair = {}
         prompt = "Summary:"
-        chosen_summary = sample["accepted"]
+        chosen_summary = sample["chosen"]
         rejected_summary = sample["rejected"]
         if chosen_summary == rejected_summary:
             continue

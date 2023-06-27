@@ -8,8 +8,6 @@ from torch.nn import MSELoss
 import pytorch_lightning as pl
 from transformers import AutoTokenizer, T5ForConditionalGeneration, AutoConfig, Trainer, TrainingArguments
 from pytorch_lightning.callbacks import EarlyStopping
-from scipy.stats.stats import pearsonr
-from scipy.stats import spearmanr
 
 from sft_dataset import SFTDataset, my_collate
 from pytorch_lightning.callbacks import ModelCheckpoint

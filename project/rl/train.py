@@ -135,6 +135,8 @@ if __name__ == "__main__":
 
 
     def preprocess(sample):
+        if not sample["rejected"].endswith("</s>"):
+            sample["rejected"] = sample["rejected"] + "</s>"
         sample["prompt_output"] = [
                 [sample["prompt"] + "Summary:", sample["chosen"]],
                 [sample["prompt"] + "Summary:", sample["rejected"]]
@@ -142,12 +144,16 @@ if __name__ == "__main__":
         sample["reward"] = [1, -1]
         return sample
 
-    train_dataset = json.load(open("./saved_summaries_train.json", "r"))
-    valid_dataset = json.load(open("./saved_summaries_valid.json", "r"))
+    # data
+    path = "../../data/rl.json"
+    absolute_path = os.path.abspath(path)
+    #data = json.load(open(absolute_path, "r"))
+    #train_dataset = data["train"]
+    #valid_dataset = data["val"]
 
     # convert json to dataset huggingface
-    train_dataset = load_dataset("json", data_files="./saved_summaries_train.json", field="train")
-    valid_dataset = load_dataset("json", data_files="./saved_summaries_valid.json", field="valid")
+    train_dataset = load_dataset("json", data_files=absolute_path, field="train")
+    valid_dataset = load_dataset("json", data_files=absolute_path, field="val")
 
     dataset_train = train_dataset.map(preprocess)
     dataset_valid = valid_dataset.map(preprocess)
@@ -157,11 +163,11 @@ if __name__ == "__main__":
     eval_prompts = list(dataset_valid["train"]["prompt"])
 
     ind = 0
-    for sent in train_prompts_outputs:
-        if len(sent[1]) == 0:
-             del train_prompts_outputs[ind]
-             del train_rewards[ind]
-        ind += 1
+    #for sent in train_prompts_outputs:
+    #    if len(sent[1]) == 0:
+    #         del train_prompts_outputs[ind]
+    #         del train_rewards[ind]
+    #    ind += 1
 
 
 

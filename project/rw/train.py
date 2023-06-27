@@ -8,8 +8,6 @@ from torch.nn import MSELoss
 import pytorch_lightning as pl
 from transformers import AutoTokenizer, T5ForConditionalGeneration, AutoConfig, Trainer, TrainingArguments
 from pytorch_lightning.callbacks import EarlyStopping
-from scipy.stats.stats import pearsonr
-from scipy.stats import spearmanr
 
 from pytorch_lightning.callbacks import ModelCheckpoint
 
@@ -169,6 +167,7 @@ class RewardModel (pl.LightningModule):
         input_ids, attention_mask = batch["input_ids"], batch["attention_mask"]
         
         outputs = self(input_ids, attention_mask)
+        print("OUTPUTS: ", outputs)
         loss =  outputs["loss"]
         self.valid_loss.append(loss.detach().cpu().numpy())
         self.log('val_loss',loss)
@@ -194,6 +193,7 @@ def cli_main():
     parser.add_argument("--batch_size", default=2, type=int)
     parser.add_argument('--gpus', type=int, default=1)
     parser.add_argument('--accumulate_grad_batches', type=int, default=16)
+    parser.add_argument('--inference', action="store_true", help='Set the flag to True')
     args = parser.parse_args()
 
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
@@ -208,8 +208,8 @@ def cli_main():
 
     train_loader = DataLoader(rw_train, batch_size=args.batch_size, num_workers=8, shuffle=True, collate_fn=data_collator, pin_memory=True)
     valid_loader = DataLoader(rw_valid, batch_size=args.batch_size, num_workers=8, shuffle=False, collate_fn=data_collator, pin_memory=True)
-    
-    model = RewardModel()
+    print("INFERENE: ", args.inference)
+    model = RewardModel(inference=args.inference)
 
     early_stop = EarlyStopping(
             monitor='train_loss',
